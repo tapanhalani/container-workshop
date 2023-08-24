@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: container-workshop
+    app.kubernetes.io/instance: container-workshop-instance
+    app.kubernetes.io/version: '1.0.0'
+    app.kubernetes.io/managed-by: kubectl
+  name: container-workshop-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container-workshop
+  template:
+    metadata:
+      labels:
+        app: container-workshop
+    spec:
+      containers:
+        - image: 444554869397.dkr.ecr.eu-west-2.amazonaws.com/awsugahm/container-workshop:latest
+          imagePullPolicy: Always
+          name: container-workshop
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              memory: 200Mi
+            limits:
+              cpu: 50m
+              memory: 300Mi

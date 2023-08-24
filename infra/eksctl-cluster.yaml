@@ -1,0 +1,16 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: container-workshop # cluster name
+  region: eu-west-2 # cluster region
+  version: "1.25" # K8s version of cluster
+
+
+managedNodeGroups:
+  - name: node-group-1  # name of node group
+    instanceType: t2.medium # desired instance-type of instances in node-group
+    desiredCapacity: 1  # desired number of instances of node-group
+    ssh:
+      allow: false
+
