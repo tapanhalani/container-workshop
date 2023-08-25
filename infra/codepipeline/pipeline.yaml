@@ -1,0 +1,213 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+# Parameters:
+#   GitHubRepo:
+#     Type: String
+#   GitHubBranch:
+#     Type: String
+#   GitHubToken:
+#     Type: String
+#     NoEcho: true
+#   GitHubUser:
+#     Type: String
+#   MlOpsStepFunctionArn:
+#     Type: String  
+Resources:
+  Repository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Delete
+    Properties:
+      RepositoryName: "awsugahm/container-workshop"
+      ImageScanningConfiguration: 
+        ScanOnPush: true
+      ImageTagMutability: IMMUTABLE
+      EncryptionConfiguration:
+        EncryptionType: KMS
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:GetAuthorizationToken                                         
+              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+                Effect: Allow
+                Action:
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - eks:*
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+              - Resource: "*"
+                Effect: Allow
+                Action:                  
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - iam:PassRole
+                  - states:DescribeStateMachine
+                  - states:StartExecution
+                  - states:DescribeExecution
+              - Resource: "*"
+                Effect: Allow
+                Action:                  
+                  - codecommit:CancelUploadArchive
+                  - codecommit:GetBranch
+                  - codecommit:GetCommit
+                  - codecommit:GetUploadArchiveStatus
+                  - codecommit:UploadArchive
+            
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        # BuildSpec: |
+        #   version: 0.2
+        #   phases:
+        #     pre_build:
+        #       commands:
+        #         - printenv | less
+        #         - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)                
+        #         - ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+        #         - echo "ECR_URI=${ECR_URI}"
+        #         - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+        #         - dt=`date '+%m-%d-%Y-%H-%M-%S'`
+        #         - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)-${dt}"                
+        #         - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
+        #         - echo "IMAGE_URI=${IMAGE_URI}"
+        #     build:
+        #       commands:
+        #         - cd container
+        #         - docker build --tag "$IMAGE_URI" .
+        #     post_build:
+        #       commands:
+        #         - docker push "$IMAGE_URI"
+        #         - cd ..
+        #         - printf '{"commitID":"%s","imageUri":"%s"}' "$TAG" "$IMAGE_URI" > sf_start_params.json
+        #   artifacts:
+        #     files: sf_start_params.json
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+      Name: !Ref AWS::StackName
+      ServiceRole: !Ref CodeBuildServiceRole  
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: GetSource
+          Actions:
+            - Name: source
+              RunOrder: 1       
+              ActionTypeId:
+                Version: '1'
+                Provider: CodeCommit
+                Category: Source
+                Owner: AWS
+              Configuration:
+                RepositoryName: container-workshop
+                BranchName: main
+                PollForSourceChanges: 'true'
+              OutputArtifacts:
+                - Name: container-workshop-source-artifact
+        - Name: BuildAndDeployContainerImage
+          Actions:
+            - Name: BuildAndDeployContainerImage
+              RunOrder: 1          
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: container-workshop-source-artifact
+              OutputArtifacts:
+                - Name: BuildOutputImage
+            # - Name: ExecuteSagemakerMLOpsStepFunction
+            #   InputArtifacts:
+            #     - Name: BuildOutputImage
+            #   ActionTypeId:
+            #     Category: Invoke
+            #     Owner: AWS
+            #     Version: 1
+            #     Provider: StepFunctions
+            #   OutputArtifacts:
+            #     - Name: myOutputArtifact
+            #   Configuration:
+            #     StateMachineArn: !Ref MlOpsStepFunctionArn
+            #     ExecutionNamePrefix: my-prefix
+            #     InputType: FilePath
+            #     Input: sf_start_params.json
+            #   RunOrder: 2  
+Outputs:
+  # PipelineUrl:
+  #   Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+  ArtifactBucket:
+    Value: !Ref ArtifactBucket

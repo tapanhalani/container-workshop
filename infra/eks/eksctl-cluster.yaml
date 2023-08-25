@@ -8,8 +8,8 @@ metadata:
 
 
 managedNodeGroups:
-  - name: node-group-1  # name of node group
-    instanceType: t2.medium # desired instance-type of instances in node-group
+  - name: node-group-01  # name of node group
+    instanceType: t2.small # desired instance-type of instances in node-group
     desiredCapacity: 1  # desired number of instances of node-group
     ssh:
       allow: false

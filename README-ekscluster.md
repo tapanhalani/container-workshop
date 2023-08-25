@@ -4,7 +4,7 @@
 
 ```
 cd ~/awsug-container-workshop/github/container-workshop
-eksctl create cluster -f ./infra/eksctl-cluster.yaml --profile container-workshop
+eksctl create cluster -f ./infra/eks/eksctl-cluster.yaml --profile container-workshop
 ```
 
 Successful output should like this:

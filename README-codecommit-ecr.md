@@ -5,6 +5,7 @@
 ```bash
 $ cd ~/awsug-container-workshop/github/container-workshop
 $ aws codecommit create-repository \
+    --profile container-workshop \
     --repository-name container-workshop \
     --repository-description "container-workshop nodejs application"
 ```
@@ -14,7 +15,7 @@ If successful, the command output would like this:
 ```
 {
     "repositoryMetadata": {
-        "accountId": "AWSACCNTID",
+        "accountId": "AWS_ACCOUNT_ID",
         "repositoryId": "5a3309b6-b663-4a96-9012-69f843095013",
         "repositoryName": "container-workshop",
         "repositoryDescription": "container-workshop nodejs application",
@@ -22,7 +23,7 @@ If successful, the command output would like this:
         "creationDate": "2023-08-24T14:30:51.001000+00:00",
         "cloneUrlHttp": "https://git-codecommit.us-east-1.amazonaws.com/v1/repos/container-workshop",
         "cloneUrlSsh": "ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/container-workshop",
-        "Arn": "arn:aws:codecommit:us-east-1:AWSACCNTID:container-workshop"
+        "Arn": "arn:aws:codecommit:us-east-1:AWS_ACCOUNT_ID:container-workshop"
     }
 }
 ```
