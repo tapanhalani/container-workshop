@@ -28,4 +28,8 @@ If successful, the command output would like this:
 }
 ```
 
-(1.b) Pull the  
+(1.b) Pull the empty codecommit repository
+
+```
+git pull
+```

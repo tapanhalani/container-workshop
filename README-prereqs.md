@@ -8,6 +8,8 @@
             https://eksctl.io/introduction/?h=install#installation
         - kubectl
             https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
+        - git
+        - git-remote-codecommit
 
     (1.b) Configure aws cli to connect to your AWS account, by providing the following details in `aws configure` command:
 
