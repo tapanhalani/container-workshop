@@ -33,7 +33,8 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                  - ecr:GetAuthorizationToken                                         
+                  - ecr:GetAuthorizationToken     
+                  - eks:*                                    
               - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
                 Effect: Allow
                 Action:
@@ -50,7 +51,6 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
-                  - eks:*
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -104,39 +104,18 @@ Resources:
       Source:
         Type: CODEPIPELINE
         BuildSpec: app/buildspec.yml
-        # BuildSpec: |
-        #   version: 0.2
-        #   phases:
-        #     pre_build:
-        #       commands:
-        #         - printenv | less
-        #         - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)                
-        #         - ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-        #         - echo "ECR_URI=${ECR_URI}"
-        #         - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
-        #         - dt=`date '+%m-%d-%Y-%H-%M-%S'`
-        #         - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)-${dt}"                
-        #         - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
-        #         - echo "IMAGE_URI=${IMAGE_URI}"
-        #     build:
-        #       commands:
-        #         - cd container
-        #         - docker build --tag "$IMAGE_URI" .
-        #     post_build:
-        #       commands:
-        #         - docker push "$IMAGE_URI"
-        #         - cd ..
-        #         - printf '{"commitID":"%s","imageUri":"%s"}' "$TAG" "$IMAGE_URI" > sf_start_params.json
-        #   artifacts:
-        #     files: sf_start_params.json
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:7.0
         PrivilegedMode: true
         Type: LINUX_CONTAINER
         EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
           - Name: AWS_DEFAULT_REGION
             Value: !Ref AWS::Region
+          - Name: AWS_CLUSTER_NAME
+            Value: container-workshop
           - Name: REPOSITORY_URI
             Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
       Name: !Ref AWS::StackName
@@ -179,24 +158,12 @@ Resources:
                 - Name: container-workshop-source-artifact
               OutputArtifacts:
                 - Name: BuildOutputImage
-            # - Name: ExecuteSagemakerMLOpsStepFunction
-            #   InputArtifacts:
-            #     - Name: BuildOutputImage
-            #   ActionTypeId:
-            #     Category: Invoke
-            #     Owner: AWS
-            #     Version: 1
-            #     Provider: StepFunctions
-            #   OutputArtifacts:
-            #     - Name: myOutputArtifact
-            #   Configuration:
-            #     StateMachineArn: !Ref MlOpsStepFunctionArn
-            #     ExecutionNamePrefix: my-prefix
-            #     InputType: FilePath
-            #     Input: sf_start_params.json
-            #   RunOrder: 2  
+
 Outputs:
-  # PipelineUrl:
-  #   Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${CodePipeline}
   ArtifactBucket:
     Value: !Ref ArtifactBucket
+  CodeBuildServiceRoleARN:
+    Value: !GetAtt CodeBuildServiceRole.Arn 
+  
