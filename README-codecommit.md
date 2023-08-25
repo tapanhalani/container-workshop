@@ -52,17 +52,6 @@ $ git log
 The `git log` command should show all commits originally pushed to github repository, now migrated to the codecommit repository. 
 
 
-# Create ECR repository
-
-(2.a) Create ECR repository to host the nodejs application docker image, built and pushed by codepipeline
-
-```bash
-$ aws ecr create-repository \
-    --repository-name awsugahm/container-workshop \
-    --image-tag-mutability IMMUTABLE \
-    --image-scanning-configuration scanOnPush=true \
-    --encryption-configuration encryptionType=KMS
-```
-
+# Create AWS Codepipeline repository and push application code
 
 [Click here for steps to creating codepipeline](README-codepipeline.md)

@@ -1,17 +1,5 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-# Parameters:
-#   GitHubRepo:
-#     Type: String
-#   GitHubBranch:
-#     Type: String
-#   GitHubToken:
-#     Type: String
-#     NoEcho: true
-#   GitHubUser:
-#     Type: String
-#   MlOpsStepFunctionArn:
-#     Type: String  
 Resources:
   Repository:
     Type: AWS::ECR::Repository
