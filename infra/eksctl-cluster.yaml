@@ -3,7 +3,7 @@ kind: ClusterConfig
 
 metadata:
   name: container-workshop # cluster name
-  region: eu-west-2 # cluster region
+  region: us-east-1 # cluster region
   version: "1.25" # K8s version of cluster
 
 

@@ -10,8 +10,9 @@
             https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html
         - git
         - git-remote-codecommit
+            https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html#setting-up-git-remote-codecommit-prereq
 
-    (1.b) Configure aws cli to connect to your AWS account, by providing the following details in `aws configure` command:
+    (1.b) Configure aws cli (named profile = container-workshop) to connect to your AWS lab account, by providing the following details in `aws configure --profile container-workshop` command:
 
         ```
         AWS Access Key ID: <Provided-by-AWS-admin>
@@ -19,23 +20,19 @@
         Default region name: us-east-1
         Default output format: None
         ```
-    
-# Clone the git repository
+
+   
+# Clone the github repository
 
     (2.a) Clone the git repository containing code samples for app and infra.  
 
         ```
-        git clone <git-repo-url>
+        mkdir -p ~/awsug-container-workshop/{github,codecommit}
+        cd github
+        git clone https://github.com/tapanhalani/container-workshop.git
         ```
 
-# Create ECR repository
 
-    (3.a) Create ECR repository to host the nodejs application docker image.
+# Create EKS cluster
 
-        ```
-        aws ecr create-repository \
-            --repository-name awsugahm/container-workshop \
-            --image-tag-mutability IMMUTABLE \
-            --image-scanning-configuration scanOnPush=true \
-            --encryption-configuration encryptionType=KMS
-        ```
+[Click here for steps to create eks-cluster](README-ekscluster.md)

@@ -18,7 +18,7 @@ spec:
         app: container-workshop
     spec:
       containers:
-        - image: 444554869397.dkr.ecr.eu-west-2.amazonaws.com/awsugahm/container-workshop:latest
+        - image: AWSACCNTID.dkr.ecr.us-east-1.amazonaws.com/awsugahm/container-workshop:latest
           imagePullPolicy: Always
           name: container-workshop
           ports:
