@@ -103,6 +103,7 @@ Resources:
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
+        BuildSpec: app/buildspec.yml
         # BuildSpec: |
         #   version: 0.2
         #   phases:

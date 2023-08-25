@@ -52,6 +52,6 @@ $ git log
 The `git log` command should show all commits originally pushed to github repository, now migrated to the codecommit repository. 
 
 
-# Create AWS Codepipeline repository and push application code
+# Create pipeline in AWS Codepipeline
 
 [Click here for steps to creating codepipeline](README-codepipeline.md)
