@@ -139,7 +139,7 @@ Resources:
                 Owner: AWS
               Configuration:
                 RepositoryName: container-workshop
-                BranchName: main
+                BranchName: master
                 PollForSourceChanges: 'true'
               OutputArtifacts:
                 - Name: container-workshop-source-artifact

@@ -33,24 +33,19 @@ If successful, the command output would like this:
 ```bash
 $ cd ~/awsug-container-workshop/github/container-workshop/codecommit
 $ git clone codecommit::us-east-1://container-workshop@container-workshop
+$ cd ~/awsug-container-workshop/codecommit/container-workshop
 ```
 
-(1.c) Clone a bare copy of github repository to a local folder, and push it to codecommit repository
+
+(1.c) Copy contents from github repository to the empty codecommit repository
 
 ```bash
-$ git clone --mirror https://github.com/tapanhalani/container-workshop.git github-mirror
-$ cd github-mirror
-$ git push codecommit::us-east-1://container-workshop@container-workshop --all
-$ cd ..
-$ rm -rf github-mirror
-$ cd container-workshop
-$ git fetch origin main:main
-$ git checkout main
-$ git log 
+$ cp ~/awsug-container-workshop/github/container-workshop/* ./
+$ git status # If copy went well, you should see 4 READMEs, app and infra folders as "Untracked files" 
+$ git add -A
+$ git commit -m "first commit"
+$ git push origin master
 ```
-
-The `git log` command should show all commits originally pushed to github repository, now migrated to the codecommit repository. 
-
 
 # Create pipeline in AWS Codepipeline
 
