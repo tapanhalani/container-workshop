@@ -1,7 +1,7 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
-  Repository:
+  ECRcontainerRepository:
     Type: AWS::ECR::Repository
     DeletionPolicy: Delete
     Properties:
@@ -41,7 +41,7 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECRcontainerRepository}
                 Effect: Allow
                 Action:
                   - ecr:GetDownloadUrlForLayer
@@ -117,7 +117,7 @@ Resources:
           - Name: AWS_CLUSTER_NAME
             Value: container-workshop
           - Name: REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRcontainerRepository}
       Name: !Ref AWS::StackName
       ServiceRole: !Ref CodeBuildServiceRole  
   CodePipeline:

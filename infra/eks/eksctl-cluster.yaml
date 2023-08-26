@@ -13,4 +13,6 @@ managedNodeGroups:
     desiredCapacity: 1  # desired number of instances of node-group
     ssh:
       allow: false
+    volumeSize: 20
+    volumeEncrypted: true
 
