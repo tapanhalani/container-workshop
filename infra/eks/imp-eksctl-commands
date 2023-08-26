@@ -1,6 +1,9 @@
-eksctl delete nodegroup -f ./infra/eks/eksctl-cluster.yaml --approve --profile container-workshop
+eksctl delete nodegroup \
+  -f ./infra/eks/eksctl-cluster.yaml \
+  --approve \
+  --profile container-workshop \
+  --wait
 
-eksctl create nodegroup --config-file ./infra/eks/eksctl-cluster.yaml --profile container-workshop
-
-
-aws sts decode-authorization-message --encoded-message DTs_nmCq748peHf2O2NeEAgfpukx7cmOlELshcK1eMXL1RMGtjxU6JaAiQqj0MfNvDV5ya-F3gQ_LH7oKlTJRiTdmX1GqsiuOwofFHdo419Ilvq_BTxBngzMi_qwWExp2fX1UWxZRbuYJayQ2Iag0ZhuXtIbYUGpXzNa9PK6GRJBLdLtd4wzsge9TO4wfaEKjuMnEQ5GeRuVNuF8qhSOc1_21j_M8aaqmiHoG_6i6L-ClP_CJtgRz_BAkDS3eTvGSFB3WKF_yOwhrELOz3FBcCt04dZHfFDfJo_Cw0IesgO91Spav6YE6u9y6Yy6LuhqHKvY26ak_c9-pDeuGzAM1Oww6_U_OMOEmwskWV70QP809bpDFDwad7sl_nWIkd05pGtWIjvwDCT5BW2EKl0tH6wZerwcaLs8_M5edJWPVGF77UJNZWleI-r2_Zk2OM37CGv_03QpOOuYKGTHWxx700493_fv9wp1LIGST3Vtce1Xs9lCuU7QpxcG5gt8kKIv1KxMMiY85hIFP9-VllHDdahzzR9QJreVxkUUFvf6toqBWonaeAjyMocu0AI0leq0fYU8S5rwvLd1vh7mLeDrlwX6eSsPSOwQQyEQtrnn6mkBB_p1oHtv4zO9EzWVB7Jv-yx5JZ9sD723IKhc3KOrC3v9kGZSbgwcOIedy082xZw81dze2ORpC7hPJAZgxHu3CxdyENqURT5dnN9CEGTfdKsGEAYYVP7yadA0MW8NYkfb5zhJ64ZNSl1NAU1JaKJHEde2_wMHEO-lvin_iKsvBfdQliE3ZAcD_BBdafdcGyxJzn2k6Vigas6FSyQ32Z6Ra1Yg7W0mX8TuMuFvsMk --profile blinq | jq -r .DecodedMessage | jq
+eksctl create nodegroup \
+  --config-file ./infra/eks/eksctl-cluster.yaml \
+  --profile container-workshop
